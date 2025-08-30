@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>預約日期計算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input[type="date"], input[type="number"], input[type="text"] {
+            width: 90%; /* 設置寬度為90% */
+            padding: 15px; /* 增加內邊距 */
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input.custom-week {
+            width: 40px; /* 自定義周輸入框寬度 */
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .urgency-list {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>預約日期計算器</h1>
+
+    <!-- A部分：緊急類型 -->
+    <label for="date">請求日期 (YYYY-MM-DD):</label>
+    <input type="date" id="date" required onchange="calculateEndDates()">
+
+    <div class="urgency-list">
+        <h3>不同緊急類型計算的最後期限</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>緊急類型</th>
+                    <th>自定義周</th>
+                    <th>最後期限</th>
+                </tr>
+            </thead>
+            <tbody id="urgencyResults"></tbody>
+        </table>
+    </div>
+
+    <!-- B部分：周差異 -->
+    <div class="section">
+        <h3>請求日期與預約日期週差</h3>
+        <label for="manualStartDate">請求日期:</label>
+        <input type="date" id="manualStartDate" onchange="calculateWeeks()">
+
+        <label for="manualEndDate">預約日期:</label>
+        <input type="date" id="manualEndDate" onchange="calculateWeeks()">
+
+        <label for="weeksDifference">周差:</label>
+        <input type="text" id="weeksDifference" readonly>
+    </div>
+</div>
+
+<script>
+    const urgencyTypes = [
+        { label: "P1", defaultWeeks: 2 },
+        { label: "Early P2", defaultWeeks: 4 },
+        { label: "P2", defaultWeeks: 8 },
+        { label: "Early R", defaultWeeks: 16 },
+        { label: "R", defaultWeeks: 32 },
+        { label: "自定義", defaultWeeks: 1 }
+    ];
+
+    function calculateEndDates() {
+        const dateInput = document.getElementById('date').value;
+        const startDate = new Date(dateInput);
+        const resultsContainer = document.getElementById('urgencyResults');
+        resultsContainer.innerHTML = ""; // 清除以前的結果
+
+        urgencyTypes.forEach(urgency => {
+            const row = document.createElement('tr');
+
+            if (urgency.label === "自定義") {
+                const customWeekInput = document.createElement('input');
+                customWeekInput.type = 'number';
+                customWeekInput.className = 'custom-week';
+                customWeekInput.value = urgency.defaultWeeks;
+                customWeekInput.min = 0; // 防止負數輸入
+
+                const increaseButton = document.createElement('button');
+                increaseButton.textContent = '+';
+                increaseButton.onclick = function() {
+                    customWeekInput.value = parseInt(customWeekInput.value) + 1;
+                    updateDeadline(customWeekInput.value);
+                };
+
+                const decreaseButton = document.createElement('button');
+                decreaseButton.textContent = '-';
+                decreaseButton.onclick = function() {
+                    if (customWeekInput.value > 0) {
+                        customWeekInput.value = parseInt(customWeekInput.value) - 1;
+                        updateDeadline(customWeekInput.value);
+                    }
+                };
+
+                row.innerHTML = `<td>${urgency.label}</td><td></td><td></td>`;
+                const cell = row.cells[1];
+                cell.appendChild(decreaseButton);
+                cell.appendChild(customWeekInput);
+                cell.appendChild(increaseButton);
+                resultsContainer.appendChild(row);
+
+                updateDeadline(urgency.defaultWeeks);
+            } else {
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + (urgency.defaultWeeks * 7));
+                const formattedDate = endDate.toISOString().split('T')[0];
+                const dayOfWeek = endDate.toLocaleString('default', { weekday: 'long' });
+                row.innerHTML = `<td>${urgency.label}</td><td>${urgency.defaultWeeks} 周</td><td>${formattedDate} (${dayOfWeek})</td>`;
+                resultsContainer.appendChild(row);
+            }
+        });
+    }
+
+    function updateDeadline(weeks) {
+        const dateInput = document.getElementById('date').value;
+        const startDate = new Date(dateInput);
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + (weeks * 7));
+        const formattedDate = endDate.toISOString().split('T')[0];
+        const dayOfWeek = endDate.toLocaleString('default', { weekday: 'long' });
+
+        const resultsContainer = document.getElementById('urgencyResults');
+        const customRow = resultsContainer.querySelector('tr:last-child');
+        customRow.cells[2].textContent = `${formattedDate} (${dayOfWeek})`;
+    }
+
+    function calculateWeeks() {
+        const manualStartDate = new Date(document.getElementById('manualStartDate').value);
+        const manualEndDate = new Date(document.getElementById('manualEndDate').value);
+        
+        if (manualStartDate && manualEndDate) {
+            const timeDiff = manualEndDate - manualStartDate;
+            const weeksDiff = (timeDiff / (1000 * 60 * 60 * 24 * 7)).toFixed(1); // 將毫秒轉換為周，保留1位小數
+            document.getElementById('weeksDifference').value = `${weeksDiff} 周`;
+        } else {
+            document.getElementById('weeksDifference').value = '';
+        }
+    }
+</script>
+
+</body>
+</html>

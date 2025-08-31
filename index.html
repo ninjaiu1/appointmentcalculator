@@ -34,7 +34,7 @@
             border-radius: 4px;
         }
         input.custom-week {
-            width: 40px; /* 自定義周輸入框寬度 */
+            width: 40px; /* 周數輸入框寬度 */
         }
         button {
             padding: 10px;
@@ -83,7 +83,7 @@
             <thead>
                 <tr>
                     <th>緊急類型</th>
-                    <th>自定義周</th>
+                    <th>周數</th>
                     <th>最後期限</th>
                 </tr>
             </thead>
@@ -93,7 +93,7 @@
 
     <!-- B部分：周差異 -->
     <div class="section">
-        <h3>轉介日期與預約日期週差</h3>
+        <h3>轉介日期與預約日期周差</h3>
         <label for="manualStartDate">轉介日期:</label>
         <input type="date" id="manualStartDate" onchange="calculateWeeks()">
 

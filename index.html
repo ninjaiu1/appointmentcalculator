@@ -74,7 +74,7 @@
     <h1>預約日期計算器</h1>
 
     <!-- A部分：緊急類型 -->
-    <label for="date">請求日期 (YYYY-MM-DD):</label>
+    <label for="date">轉介日期 (YYYY-MM-DD):</label>
     <input type="date" id="date" required onchange="calculateEndDates()">
 
     <div class="urgency-list">
@@ -93,8 +93,8 @@
 
     <!-- B部分：周差異 -->
     <div class="section">
-        <h3>請求日期與預約日期週差</h3>
-        <label for="manualStartDate">請求日期:</label>
+        <h3>轉介日期與預約日期週差</h3>
+        <label for="manualStartDate">轉介日期:</label>
         <input type="date" id="manualStartDate" onchange="calculateWeeks()">
 
         <label for="manualEndDate">預約日期:</label>

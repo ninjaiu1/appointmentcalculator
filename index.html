@@ -34,7 +34,7 @@
             border-radius: 4px;
         }
         input.custom-week {
-            width: 40px; /* 周數輸入框寬度 */
+            width: 40px; /* 自定義周輸入框寬度 */
         }
         button {
             padding: 10px;
@@ -91,16 +91,16 @@
         </table>
     </div>
 
-    <!-- B部分：周差異 -->
+    <!-- B部分：相差周數計算器 -->
     <div class="section">
-        <h3>轉介日期與預約日期周差</h3>
+        <h3>轉介日期與預約日期的相差周數</h3>
         <label for="manualStartDate">轉介日期:</label>
         <input type="date" id="manualStartDate" onchange="calculateWeeks()">
 
         <label for="manualEndDate">預約日期:</label>
         <input type="date" id="manualEndDate" onchange="calculateWeeks()">
 
-        <label for="weeksDifference">周差:</label>
+        <label for="weeksDifference">相差周數:</label>
         <input type="text" id="weeksDifference" readonly>
     </div>
 </div>
@@ -110,8 +110,8 @@
         { label: "P1", defaultWeeks: 2 },
         { label: "Early P2", defaultWeeks: 4 },
         { label: "P2", defaultWeeks: 8 },
-        { label: "Early R", defaultWeeks: 16 },
-        { label: "R", defaultWeeks: 32 },
+        { label: "Early R(只作參考)", defaultWeeks: 16 },
+        { label: "R(只作參考)", defaultWeeks: 30 },
         { label: "自定義", defaultWeeks: 1 }
     ];
 
@@ -130,6 +130,11 @@
                 customWeekInput.className = 'custom-week';
                 customWeekInput.value = urgency.defaultWeeks;
                 customWeekInput.min = 0; // 防止負數輸入
+
+                // Add an event listener to update the deadline immediately
+                customWeekInput.addEventListener('input', function() {
+                    updateDeadline(customWeekInput.value);
+                });
 
                 const increaseButton = document.createElement('button');
                 increaseButton.textContent = '+';
